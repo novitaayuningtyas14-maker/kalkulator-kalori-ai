@@ -1,0 +1,38 @@
+[
+  {
+    "nama": "Nasi Putih 100g",
+    "karbo": 28,
+    "protein": 2.7,
+    "lemak": 0.3
+  },
+  {
+    "nama": "Nasi Goreng 1 porsi",
+    "karbo": 45,
+    "protein": 12,
+    "lemak": 14
+  },
+  {
+    "nama": "Ayam Goreng 1 potong",
+    "karbo": 8,
+    "protein": 20,
+    "lemak": 15
+  },
+  {
+    "nama": "Tempe Goreng 1 potong",
+    "karbo": 8,
+    "protein": 7,
+    "lemak": 8
+  },
+  {
+    "nama": "Oatmeal 1 mangkuk",
+    "karbo": 27,
+    "protein": 5,
+    "lemak": 3
+  },
+  {
+    "nama": "Smoothie Pisang",
+    "karbo": 35,
+    "protein": 6,
+    "lemak": 4
+  }
+]
