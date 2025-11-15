@@ -1,38 +1,22 @@
 [
-  {
-    "nama": "Nasi Putih 100g",
-    "karbo": 28,
-    "protein": 2.7,
-    "lemak": 0.3
-  },
-  {
-    "nama": "Nasi Goreng 1 porsi",
-    "karbo": 45,
-    "protein": 12,
-    "lemak": 14
-  },
-  {
-    "nama": "Ayam Goreng 1 potong",
-    "karbo": 8,
-    "protein": 20,
-    "lemak": 15
-  },
-  {
-    "nama": "Tempe Goreng 1 potong",
-    "karbo": 8,
-    "protein": 7,
-    "lemak": 8
-  },
-  {
-    "nama": "Oatmeal 1 mangkuk",
-    "karbo": 27,
-    "protein": 5,
-    "lemak": 3
-  },
-  {
-    "nama": "Smoothie Pisang",
-    "karbo": 35,
-    "protein": 6,
-    "lemak": 4
-  }
+  {"nama":"Nasi Putih 100g","karbo":28,"protein":2.7,"lemak":0.3},
+  {"nama":"Nasi Goreng 1 porsi","karbo":45,"protein":12,"lemak":14},
+  {"nama":"Nasi + Ayam 1 porsi","karbo":40,"protein":25,"lemak":10},
+  {"nama":"Oatmeal 1 mangkuk","karbo":27,"protein":5,"lemak":3},
+  {"nama":"Smoothie Pisang","karbo":35,"protein":6,"lemak":4},
+  {"nama":"Tempe Goreng 100g","karbo":9,"protein":16,"lemak":11},
+  {"nama":"Tahu Goreng 100g","karbo":2,"protein":8,"lemak":9},
+  {"nama":"Dada Ayam 100g (panggang)","karbo":0,"protein":31,"lemak":3.6},
+  {"nama":"Telur Rebus 1 butir","karbo":0.6,"protein":6.3,"lemak":5.3},
+  {"nama":"Pisang 1 buah (medium)","karbo":27,"protein":1.3,"lemak":0.3},
+  {"nama":"Roti Gandum 1 iris","karbo":12,"protein":3.6,"lemak":1.0},
+  {"nama":"Kentang Rebus 100g","karbo":17,"protein":2,"lemak":0.1},
+  {"nama":"Ikan Panggang 100g","karbo":0,"protein":22,"lemak":5},
+  {"nama":"Susu UHT 200ml","karbo":9.6,"protein":6.8,"lemak":7.6},
+  {"nama":"Kacang Almond 30g","karbo":6,"protein":6,"lemak":14},
+  {"nama":"Sayur Tumis 100g","karbo":4,"protein":1.5,"lemak":3},
+  {"nama":"Gado-gado 1 porsi","karbo":30,"protein":10,"lemak":18},
+  {"nama":"Soto Ayam 1 mangkuk","karbo":15,"protein":20,"lemak":8},
+  {"nama":"Bakso 3 butir","karbo":6,"protein":10,"lemak":5},
+  {"nama":"Mie Goreng 1 porsi","karbo":60,"protein":10,"lemak":20}
 ]
