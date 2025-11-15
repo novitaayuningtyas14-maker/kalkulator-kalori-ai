@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Kalkulator Kalori AI — Kalkulator Kalori</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#F7FAFC;--card:#fff;--accent:#00A1FF;--muted:#6B7280;--success:#16A34A;--warning:#F59E0B;--danger:#EF4444;font-family:Inter,ui-sans-serif,system-ui,Arial;}
+    *{box-sizing:border-box} body{margin:0;background:var(--bg);color:#0b1220} .wrap{max-width:1000px;margin:24px auto;padding:16px}
+    .grid{display:grid;grid-template-columns:1fr 420px;gap:16px}
+    @media(max-width:920px){.grid{grid-template-columns:1fr}}
+    .card{background:var(--card);border-radius:14px;padding:16px;box-shadow:0 8px 30px rgba(2,6,23,0.06)}
+    h1{margin:0 0 6px 0;font-size:20px}
+    label{display:block;margin-top:10px;color:var(--muted);font-size:13px}
+    input,select{width:100%;padding:10px;border-radius:10px;border:1px solid #e6e9ee;margin-top:6px;font-size:14px}
+    .row{display:flex;gap:8px} .row> *{flex:1}
+    .btn{display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border-radius:10px;border:0;background:var(--accent);color:#fff;font-weight:600;cursor:pointer}
+    .btn.ghost{background:transparent;border:1px solid #e6e9ee;color:var(--muted)}
+    .small{padding:8px 10px;border-radius:8px}
+    .muted{color:var(--muted);font-size:13px}
+    .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+    .chip{background:#f6f9ff;padding:8px 10px;border-radius:999px;color:#044}
+    pre{background:#f5f7fa;padding:10px;border-radius:8px;overflow:auto}
+    .footer{margin-top:12px;text-align:center;color:var(--muted);font-size:13px}
+    .legend{display:flex;gap:8px;align-items:center;margin-top:12px}
+    .dot{width:12px;height:12px;border-radius:3px;display:inline-block}
+    .controls{display:flex;gap:8px;margin-top:12px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div>
+        <h1>Kalkulator Kalori AI</h1>
+        <div class="muted">Isi data, hitung lokal, atau minta analisis AI untuk rekomendasi personal.</div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <div>
+          <label>Nama</label>
+          <input id="nama" placeholder="Nama (opsional)">
+          <div class="row">
+            <div>
+              <label>Umur (tahun)</label>
+              <input id="umur" type="number" min="5" max="120" placeholder="17">
+            </div>
+            <div>
+              <label>Jenis Kelamin</label>
+              <select id="jenisKelamin">
+                <option value="L">Laki-laki</option>
+                <option value="P">Perempuan</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row">
+            <div>
+              <label>Berat (kg)</label>
+              <input id="berat" type="number" min="20" max="300" step="0.1" placeholder="60">
+            </div>
+            <div>
+              <label>Tinggi (cm)</label>
+              <input id="tinggi" type="number" min="70" max="260" step="0.1" placeholder="165">
+            </div>
+          </div>
+
+          <label>Aktivitas Harian</label>
+          <select id="aktivitas">
+            <option value="1.2">Sangat kurang aktif</option>
+            <option value="1.375">Kurang aktif</option>
+            <option value="1.55" selected>Cukup aktif</option>
+            <option value="1.725">Aktif</option>
+            <option value="1.9">Sangat aktif</option>
+          </select>
+
+          <hr style="margin:14px 0;border:none;border-top:1px solid #eef2f7">
+
+          <label>Jenis Makan</label>
+          <select id="jenisMakan">
+            <option value="Sarapan">Sarapan</option>
+            <option value="Makan Siang">Makan Siang</option>
+            <option value="Makan Malam">Makan Malam</option>
+            <option value="Snack">Snack</option>
+          </select>
+
+          <label>Nama Makanan</label>
+          <input id="namaMakanan" list="foodList" placeholder="Pilih atau ketik nama makanan">
+          <datalist id="foodList"></datalist>
+
+          <div class="row">
+            <div>
+              <label>Karbohidrat (g)</label>
+              <input id="karbo" type="number" min="0" step="0.1" placeholder="50">
+            </div>
+            <div>
+              <label>Protein (g)</label>
+              <input id="protein" type="number" min="0" step="0.1" placeholder="20">
+            </div>
+            <div>
+              <label>Lemak (g)</label>
+              <input id="lemak" type="number" min="0" step="0.1" placeholder="15">
+            </div>
+          </div>
+
+          <div class="controls">
+            <button id="btnCalc" class="btn">Hitung Lokal</button>
+            <button id="btnAI" class="btn" style="background:#0ea5e9">Analisis AI</button>
+            <button id="btnReset" class="btn ghost">Reset</button>
+          </div>
+
+          <div id="localError" class="muted" style="margin-top:10px;display:none"></div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div class="muted">Total Kalori</div>
+              <div id="outKalori" style="font-weight:700;font-size:20px">- kcal</div>
+              <div id="outSesi" class="muted">- dari sesi</div>
+            </div>
+            <div style="text-align:right">
+              <div class="muted">BMR</div>
+              <div id="outBMR" style="font-weight:700">-</div>
+              <div class="muted">TDEE</div>
+              <div id="outTDEE" style="font-weight:700">-</div>
+            </div>
+          </div>
+
+          <div style="margin-top:12px">
+            <canvas id="chart" width="260" height="260"></canvas>
+            <div class="legend">
+              <div style="display:flex;align-items:center;gap:6px"><span class="dot" style="background:#00A1FF"></span><span class="muted">Karbo</span></div>
+              <div style="display:flex;align-items:center;gap:6px"><span class="dot" style="background:#00C26E"></span><span class="muted">Protein</span></div>
+              <div style="display:flex;align-items:center;gap:6px"><span class="dot" style="background:#FFC300"></span><span class="muted">Lemak</span></div>
+            </div>
+
+            <div style="display:flex;gap:8px;margin-top:10px">
+              <button id="btnPdf" class="btn small" style="background:#10b981">Download PDF</button>
+              <button id="btnShare" class="btn small ghost">Share WA</button>
+              <button id="btnExport" class="btn small ghost">Export CSV</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="min-height:180px">
+          <div style="font-weight:700">Analisis AI</div>
+          <pre id="outAI" style="height:120px">Tekan "Analisis AI" untuk rekomendasi cerdas.</pre>
+        </div>
+
+        <div class="card">
+          <div style="font-weight:700">Riwayat Terakhir</div>
+          <div id="history" class="muted" style="margin-top:8px">Belum ada riwayat.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">© Kalkulator Kalori AI</div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+
+  <script>
+    const endpoint = "/api/analyze";
+    const $ = id => document.getElementById(id);
+    const safe = v => { const n = parseFloat(v); return isNaN(n) ? 0 : n; };
+
+    let chart = null;
+    function renderChart(k,p,l){
+      const ctx = $('chart').getContext('2d');
+      if(chart) chart.destroy();
+      chart = new Chart(ctx, {
+        type: 'pie',
+        data: { labels:['Karbo','Protein','Lemak'], datasets:[{ data:[k,p,l], backgroundColor:['#00A1FF','#00C26E','#FFC300'] }] },
+        options: { responsive:true, plugins:{legend:{position:'bottom'}}}
+      });
+    }
+
+    function calculateLocal(){
+      const karbo = safe($('karbo').value);
+      const protein = safe($('protein').value);
+      const lemak = safe($('lemak').value);
+      if(karbo+protein+lemak === 0){
+        $('localError').style.display='block'; $('localError').innerText='Masukkan setidaknya satu nilai makro.';
+        return null;
+      }
+      $('localError').style.display='none';
+      const kalori = karbo*4 + protein*4 + lemak*9;
+      const berat = safe($('berat').value), tinggi = safe($('tinggi').value), umur = safe($('umur').value);
+      const jk = $('jenisKelamin').value;
+      const aktivitas = safe($('aktivitas').value) || 1.55;
+      const bmr = (jk==='L') ? (10*berat + 6.25*tinggi - 5*umur + 5) : (10*berat + 6.25*tinggi - 5*umur -161);
+      const tdee = Math.round(bmr * aktivitas);
+      const jenis = $('jenisMakan').value.toLowerCase();
+      let minP=0.25, maxP=0.30;
+      if(jenis.includes('siang')){ minP=0.30; maxP=0.35; }
+      if(jenis.includes('malam')){ minP=0.25; maxP=0.30; }
+      if(jenis.includes('snack')){ minP=0.05; maxP=0.10; }
+      const targetMin = Math.round(tdee*minP), targetMax = Math.round(tdee*maxP), targetMedian = Math.round((targetMin+targetMax)/2);
+      const deltaPercent = Math.round(((kalori - targetMedian)/targetMedian)*100);
+      let status = 'Sesuai';
+      if(deltaPercent < -15) status = 'Kekurangan';
+      else if(deltaPercent > 15) status = 'Kelebihan';
+      const out = { karbo, protein, lemak, kalori, bmr:Math.round(bmr), tdee, targetMin, targetMax, targetMedian, deltaPercent, status };
+      return out;
+    }
+
+    $('btnCalc').addEventListener('click', ()=>{
+      const res = calculateLocal();
+      if(!res) return;
+      $('outKalori').innerText = `${Math.round(res.kalori)} kcal`;
+      $('outBMR').innerText = `${res.bmr}`;
+      $('outTDEE').innerText = `${res.tdee} kcal`;
+      $('outSesi').innerText = `${Math.round((res.kalori/res.targetMedian)*100)}% dari sesi`;
+      renderChart(res.karbo, res.protein, res.lemak);
+      $('outAI').innerText = 'Hasil lokal ditampilkan. Klik "Analisis AI" untuk rekomendasi lebih lanjut.';
+    });
+
+    async function tryFetchFoods(){
+      const paths = ['/public/foods.json','/foods.json','/public/foods.json'];
+      for(const p of paths){
+        try{
+          const r = await fetch(p);
+          if(r.ok){ const db = await r.json(); return db; }
+        }catch(e){}
+      }
+      return [];
+    }
+
+    let foodDB = [];
+    (async ()=>{
+      foodDB = await tryFetchFoods();
+      const dl = $('foodList');
+      foodDB.forEach(f=>{ const o = document.createElement('option'); o.value = f.nama; dl.appendChild(o); });
+    })();
+
+    $('namaMakanan').addEventListener('change', ()=>{
+      const v = $('namaMakanan').value.trim().toLowerCase();
+      const found = foodDB.find(f=>f.nama.toLowerCase() === v);
+      if(found){ $('karbo').value = found.karbo; $('protein').value = found.protein; $('lemak').value = found.lemak; }
+    });
+
+    function saveHistory(item){
+      const key = 'kk_history_v1';
+      let arr = JSON.parse(localStorage.getItem(key) || '[]');
+      arr.unshift(item);
+      if(arr.length>50) arr = arr.slice(0,50);
+      localStorage.setItem(key, JSON.stringify(arr));
+      renderHistory();
+    }
+    function renderHistory(){
+      const key='kk_history_v1';
+      const arr = JSON.parse(localStorage.getItem(key)||'[]');
+      const el = $('history');
+      if(!arr.length){ el.innerText='Belum ada riwayat.'; return;}
+      el.innerHTML = arr.slice(0,6).map(it=>`${it.nama||'Anonim'} • ${it.makanan} • ${it.kalori} kcal • ${it.evaluasi}`).join('<br>');
+    }
+
+    $('btnAI').addEventListener('click', async ()=>{
+      const payload = {
+        nama: $('nama').value || 'Anonim',
+        umur: safe($('umur').value),
+        tinggi: safe($('tinggi').value),
+        berat: safe($('berat').value),
+        jenisKelamin: $('jenisKelamin').value,
+        aktivitas: $('aktivitas').value,
+        jenisMakan: $('jenisMakan').value,
+        makanan: $('namaMakanan').value || 'Makanan',
+        karbo: safe($('karbo').value),
+        protein: safe($('protein').value),
+        lemak: safe($('lemak').value)
+      };
+      $('btnAI').disabled = true; $('btnAI').innerText = 'Memproses...';
+      try{
+        const r = await fetch(endpoint, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
+        const j = await r.json();
+        if(!j.ok){ $('outAI').innerText = 'Server error: ' + (j.error || 'Unknown'); }
+        else {
+          const res = j.result;
+          $('outAI').innerText = JSON.stringify(res, null, 2);
+          $('outKalori').innerText = `${res.kaloriMakanan} kcal`;
+          $('outBMR').innerText = `${res.bmr}`;
+          $('outTDEE').innerText = `${res.tdee} kcal`;
+          $('outSesi').innerText = `${Math.round((res.kaloriMakanan / (res.targetMedian||1))*100)}% dari sesi`;
+          renderChart(payload.karbo, payload.protein, payload.lemak);
+          saveHistory({ nama: payload.nama, makanan: payload.makanan, kalori: res.kaloriMakanan, evaluasi: res.evaluasi, ts: new Date().toISOString() });
+        }
+      }catch(e){ $('outAI').innerText = 'Koneksi gagal: ' + e; }
+      finally{ $('btnAI').disabled = false; $('btnAI').innerText = 'Analisis AI'; }
+    });
+
+    $('btnPdf').addEventListener('click', async ()=>{
+      const el = document.querySelector('.wrap');
+      const canvas = await html2canvas(el,{scale:2});
+      const img = canvas.toDataURL('image/png');
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF('p','mm','a4');
+      const w = pdf.internal.pageSize.getWidth();
+      const h = (canvas.height * w) / canvas.width;
+      pdf.addImage(img,'PNG',0,10,w,h);
+      pdf.save('laporan-kalori.pdf');
+    });
+
+    $('btnShare').addEventListener('click', ()=>{
+      const t = $('outAI').innerText || $('outKalori').innerText;
+      window.open('https://wa.me/?text=' + encodeURIComponent(t), '_blank');
+    });
+
+    $('btnExport').addEventListener('click', ()=>{
+      const arr = JSON.parse(localStorage.getItem('kk_history_v1')||'[]');
+      if(!arr.length) return alert('Tidak ada riwayat.');
+      const csv = ['nama,makanan,kalori,evaluasi,ts', ...arr.map(r=>`${r.nama},"${r.makanan}",${r.kalori},${r.evaluasi},${r.ts}`)].join('\\n');
+      const blob = new Blob([csv],{type:'text/csv'}); const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href=url; a.download='history.csv'; a.click(); URL.revokeObjectURL(url);
+    });
+
+    $('btnReset').addEventListener('click', ()=>{ ['nama','umur','berat','tinggi','karbo','protein','lemak','namaMakanan'].forEach(id=>$(id).value=''); $('outAI').innerText='Tekan "Analisis AI" untuk rekomendasi cerdas.'; });
+
+    renderHistory();
+  </script>
+</body>
+</html>
