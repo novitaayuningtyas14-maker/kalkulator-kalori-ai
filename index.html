@@ -1,0 +1,205 @@
+<div id="kk-app" style="font-family:Inter,Arial;margin:8px;max-width:900px">
+  <div style="display:grid;grid-template-columns:1fr 360px;gap:16px">
+    <div style="background:#fff;padding:16px;border-radius:12px;box-shadow:0 8px 24px rgba(2,6,23,0.06)">
+      <h2 style="margin:0 0 8px 0">Kalkulator Kalori + AI</h2>
+      <div style="font-size:13px;color:#556">Isi data, lalu klik Analisis AI untuk saran personal.</div>
+
+      <div style="margin-top:12px;display:grid;gap:8px">
+        <input id="in_nama" placeholder="Nama" />
+        <div style="display:flex;gap:8px">
+          <input id="in_umur" placeholder="Umur (tahun)" />
+          <select id="in_jk"><option value="L">Laki-laki</option><option value="P">Perempuan</option></select>
+        </div>
+        <div style="display:flex;gap:8px">
+          <input id="in_berat" placeholder="Berat (kg)" />
+          <input id="in_tinggi" placeholder="Tinggi (cm)" />
+        </div>
+        <select id="in_aktivitas">
+          <option value="1.2">Sangat kurang aktif</option>
+          <option value="1.375">Kurang aktif</option>
+          <option value="1.55" selected>Cukup aktif</option>
+          <option value="1.725">Aktif</option>
+          <option value="1.9">Sangat aktif</option>
+        </select>
+
+        <select id="in_jenisMakan"><option>Sarapan</option><option>Makan Siang</option><option>Makan Malam</option><option>Snack</option></select>
+        <input id="in_namaMakanan" list="foodList" placeholder="Nama makanan" />
+        <datalist id="foodList">
+          <option value="Nasi Putih 100g"></option>
+          <option value="Nasi Goreng 1 porsi"></option>
+          <option value="Nasi + Ayam 1 porsi"></option>
+          <option value="Oatmeal 1 mangkuk"></option>
+          <option value="Smoothie pisang"></option>
+        </datalist>
+
+        <div style="display:flex;gap:8px">
+          <input id="in_karbo" placeholder="Karbo (g)" />
+          <input id="in_protein" placeholder="Protein (g)" />
+          <input id="in_lemak" placeholder="Lemak (g)" />
+        </div>
+
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button id="btnAnalyze" style="flex:1;padding:10px;border-radius:10px;background:#0ea5e9;color:white;border:0">Analisis AI</button>
+          <button id="btnCalc" style="padding:10px;border-radius:10px;border:1px solid #ddd;background:white">Hitung Lokal</button>
+          <button id="btnClear" style="padding:10px;border-radius:10px;border:1px solid #ddd;background:white">Reset</button>
+        </div>
+
+        <div id="localError" style="color:#c00;display:none;margin-top:6px"></div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div style="background:#fff;padding:12px;border-radius:12px;box-shadow:0 8px 24px rgba(2,6,23,0.06)">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div style="font-size:12px;color:#667">Hasil</div>
+            <div id="out_kalori" style="font-weight:700;font-size:20px">- kcal</div>
+            <div id="out_percent" style="font-size:12px;color:#667">- dari sesi</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:12px;color:#667">TDEE</div>
+            <div id="out_tdee" style="font-weight:700">- kcal</div>
+          </div>
+        </div>
+
+        <div style="margin-top:10px">
+          <canvas id="outChart" width="260" height="260"></canvas>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button id="btnPdf" style="flex:1;padding:8px;border-radius:8px;background:#10b981;color:white">Download PDF</button>
+          <button id="btnShare" style="padding:8px;border-radius:8px;background:#093;color:white">Share WA</button>
+        </div>
+      </div>
+
+      <div style="background:#fff;padding:12px;border-radius:12px;box-shadow:0 8px 24px rgba(2,6,23,0.06);min-height:120px">
+        <div style="font-weight:700">Analisis AI</div>
+        <pre id="out_ai" style="white-space:pre-wrap;margin-top:8px;color:#111;font-size:13px">Tekan "Analisis AI" untuk rekomendasi cerdas.</pre>
+      </div>
+
+      <div style="background:#fff;padding:12px;border-radius:12px;box-shadow:0 8px 24px rgba(2,6,23,0.06)">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="font-weight:700">Riwayat Lokal</div>
+          <button id="btnExport" style="padding:6px;border-radius:8px;background:#fff;border:1px solid #eee">Export CSV</button>
+        </div>
+        <div id="historyArea" style="margin-top:8px;color:#444;font-size:13px"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+
+<script>
+const API_ENDPOINT = "https://YOUR-VERCEL-APP.vercel.app/api/analyze";
+
+function $(id){return document.getElementById(id);}
+function safeNum(v){const n=parseFloat(v); return isNaN(n)?0:n;}
+function fmt(n){return Math.round(n);}
+
+let chart=null;
+function renderChart(k, p, l){
+  const ctx = $('outChart').getContext('2d');
+  if(chart) chart.destroy();
+  chart = new Chart(ctx, {
+    type:'pie',
+    data:{ labels:['Karbo','Protein','Lemak'], datasets:[{ data:[k,p,l], backgroundColor:['#00A1FF','#00C26E','#FFC300'] }]},
+    options:{responsive:true,plugins:{legend:{position:'bottom'}}}
+  });
+}
+
+function saveHistory(obj){
+  const key='kk_history_v1';
+  let arr = JSON.parse(localStorage.getItem(key)||'[]');
+  arr.unshift(obj);
+  if(arr.length>50) arr=arr.slice(0,50);
+  localStorage.setItem(key, JSON.stringify(arr));
+  renderHistory();
+}
+
+function renderHistory(){
+  const key='kk_history_v1';
+  const arr = JSON.parse(localStorage.getItem(key)||'[]');
+  const el = $('historyArea');
+  if(!arr.length){ el.innerText = 'Belum ada riwayat.'; return; }
+  el.innerHTML = arr.slice(0,8).map(it=>`<div style="padding:6px;border-bottom:1px solid #f1f1f1">${it.nama} • ${it.makanan} • ${it.kalori} kcal • ${it.evaluasi}</div>`).join('');
+}
+
+$('btnCalc').addEventListener('click', ()=>{
+  const karbo = safeNum($('in_karbo').value), protein = safeNum($('in_protein').value), lemak = safeNum($('in_lemak').value);
+  const kalori = karbo*4 + protein*4 + lemak*9;
+  $('out_kalori').innerText = `${fmt(kalori)} kcal`;
+  renderChart(karbo, protein, lemak);
+  $('out_ai').innerText = 'Hasil lokal ditampilkan. Untuk rekomendasi AI klik Analisis AI.';
+});
+
+$('btnAnalyze').addEventListener('click', async ()=>{
+  const payload = {
+    nama: $('in_nama').value||'Anonim',
+    umur: safeNum($('in_umur').value),
+    berat: safeNum($('in_berat').value),
+    tinggi: safeNum($('in_tinggi').value),
+    jenisKelamin: $('in_jk').value,
+    aktivitas: $('in_aktivitas').value,
+    jenisMakan: $('in_jenisMakan').value,
+    makanan: $('in_namaMakanan').value||'Makanan',
+    karbo: safeNum($('in_karbo').value),
+    protein: safeNum($('in_protein').value),
+    lemak: safeNum($('in_lemak').value)
+  };
+
+  $('btnAnalyze').disabled = true; $('btnAnalyze').innerText = 'Memproses...';
+  try {
+    const r = await fetch(API_ENDPOINT, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const j = await r.json();
+    if(!j.ok){ $('out_ai').innerText = 'Terjadi error server: ' + (j.error||''); }
+    else {
+      const res = j.result || j;
+      $('out_kalori').innerText = `${res.kaloriMakanan || res.kalori || 0} kcal`;
+      $('out_tdee').innerText = `${res.tdee || '-'} kcal`;
+      $('out_percent').innerText = `${Math.round(((res.kaloriMakanan||0) / ((res.targetMedian||1)))*100)}% dari sesi`;
+      renderChart((payload.karbo),(payload.protein),(payload.lemak));
+      $('out_ai').innerText = JSON.stringify(res, null, 2);
+      saveHistory({nama:payload.nama,makanan:payload.makanan,kalori:res.kaloriMakanan||0,evaluasi:res.evaluasi||'-',ts:new Date().toISOString()});
+    }
+  } catch (err) {
+    $('out_ai').innerText = 'Gagal menghubungi server: ' + err;
+  } finally {
+    $('btnAnalyze').disabled = false; $('btnAnalyze').innerText = 'Analisis AI';
+  }
+});
+
+$('btnPdf').addEventListener('click', async ()=>{
+  const el = document.querySelector('#kk-app > div');
+  const canvas = await html2canvas(el, {scale:2});
+  const img = canvas.toDataURL('image/png');
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF('p','mm','a4');
+  const w = pdf.internal.pageSize.getWidth();
+  const h = (canvas.height * w) / canvas.width;
+  pdf.addImage(img,'PNG',0,10,w,h);
+  pdf.save('laporan-kalori.pdf');
+});
+
+$('btnShare').addEventListener('click', ()=>{
+  const text = $('out_ai').innerText || $('out_kalori').innerText;
+  window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank');
+});
+
+$('btnClear').addEventListener('click', ()=>{
+  ['in_nama','in_umur','in_berat','in_tinggi','in_karbo','in_protein','in_lemak','in_namaMakanan'].forEach(id=>{ if($(id)) $(id).value=''; });
+  $('out_kalori').innerText='- kcal'; $('out_ai').innerText='Tekan \"Analisis AI\" untuk rekomendasi cerdas.';
+});
+
+$('btnExport').addEventListener('click', ()=>{
+  const arr = JSON.parse(localStorage.getItem('kk_history_v1')||'[]');
+  if(!arr.length) return alert('Tidak ada riwayat untuk diekspor.');
+  const csv = ['nama,makanan,kalori,evaluasi,ts', ...arr.map(r=>`${r.nama},\"${r.makanan}\",${r.kalori},${r.evaluasi},${r.ts}`)].join('\\n');
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download='history_kalori.csv'; a.click(); URL.revokeObjectURL(url);
+});
+
+renderHistory();
+</script>
